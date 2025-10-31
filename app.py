@@ -1,16 +1,26 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, request, jsonify
 import os
 import chess
 
 app = Flask(__name__)
-game = chess.Board()  # Python-chess library handles rules
+game = chess.Board()
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
+@app.route("/state")
+def state():
+    """Return the current board FEN."""
+    return jsonify({
+        "fen": game.fen(),
+        "turn": "white" if game.turn else "black",
+        "game_over": game.is_game_over(),
+    })
+
 @app.route("/move", methods=["POST"])
 def move():
+    """Try to make a move."""
     data = request.get_json()
     source = data.get("from")
     target = data.get("to")
@@ -22,8 +32,8 @@ def move():
             return jsonify({
                 "status": "ok",
                 "fen": game.fen(),
-                "is_game_over": game.is_game_over(),
-                "turn": "white" if game.turn else "black"
+                "turn": "white" if game.turn else "black",
+                "game_over": game.is_game_over(),
             })
         else:
             return jsonify({"status": "illegal"})
@@ -38,4 +48,4 @@ def reset():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

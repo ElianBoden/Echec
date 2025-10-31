@@ -2,18 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flask Chess</title>
+    <title>Flask Chess Game</title>
+
+    <!-- Chessboard.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>♟️ Flask Chess Game</h1>
-    <div id="board" style="width: 480px; margin: auto;"></div>
+    <div id="board" style="width: 480px; margin: 0 auto;"></div>
     <button id="reset">Reset Game</button>
-    <p id="status"></p>
+    <p id="status">Turn: white</p>
 
+    <!-- Dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/chess.js@0.13.4/chess.min.js"></script>
     <script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard-1.0.0.min.js"></script>
+
+    <!-- Our logic -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
