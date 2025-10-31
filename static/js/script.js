@@ -1,25 +1,38 @@
-// Using chess.js for logic
 const board = Chessboard('board', {
-  draggable: true,
-  position: 'start',
-  onDrop: handleMove
+    draggable: true,
+    position: 'start',
+    onDrop: handleMove
 });
 
-const game = new Chess();
+let gameOver = false;
 
-function handleMove(source, target) {
-  const move = game.move({ from: source, to: target, promotion: 'q' });
+async function handleMove(source, target) {
+    if (gameOver) return 'snapback';
+    
+    const response = await fetch('/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: source, to: target })
+    });
 
-  if (move === null) return 'snapback'; // illegal move
+    const data = await response.json();
 
-  window.setTimeout(makeRandomMove, 250);
+    if (data.status === 'ok') {
+        board.position(data.fen);
+        document.getElementById('status').innerText = 
+            data.is_game_over ? 'Game Over!' : `Turn: ${data.turn}`;
+        gameOver = data.is_game_over;
+    } else {
+        return 'snapback';
+    }
 }
 
-function makeRandomMove() {
-  const possibleMoves = game.moves();
-  if (game.game_over()) return alert('Game over!');
-
-  const randomIdx = Math.floor(Math.random() * possibleMoves.length);
-  game.move(possibleMoves[randomIdx]);
-  board.position(game.fen());
-}
+document.getElementById('reset').onclick = async () => {
+    const response = await fetch('/reset', { method: 'POST' });
+    const data = await response.json();
+    if (data.status === 'reset') {
+        board.position('start');
+        document.getElementById('status').innerText = 'Turn: white';
+        gameOver = false;
+    }
+};
